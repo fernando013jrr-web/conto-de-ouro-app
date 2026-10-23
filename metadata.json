@@ -1,0 +1,8 @@
+{
+  "name": "Conto de Ouro — Livros Infantis Personalizados",
+  "description": "Livros digitais infantis personalizados onde seu pequeno é o verdadeiro herói da própria história. Ilustrações mágicas e narrativas cheias de carinho.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
