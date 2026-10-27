@@ -46,24 +46,19 @@ export const PreviewFormSection: React.FC<PreviewFormSectionProps> = ({
     childAge: '4',
     relationship: 'Mãe',
     childInterests: '',
-    storyTheme: selectedThemeFromGallery || 'Lucas no Mundo do Futebol',
+    storyTheme: selectedThemeFromGallery || '',
     whatsappNumber: '',
     notes: '',
     consent: true
   });
 
-  type FormErrors = Partial<Record<keyof PreviewFormData | 'customTheme', string>>;
+  type FormErrors = Partial<Record<keyof PreviewFormData, string>>;
   const [errors, setErrors] = useState<FormErrors>({});
   const [submittedLink, setSubmittedLink] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [submittedData, setSubmittedData] = useState<PreviewFormData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [activeTooltip, setActiveTooltip] = useState<'theme' | 'interests' | 'childName' | null>(null);
-  const [isCustomTheme, setIsCustomTheme] = useState(
-    selectedThemeFromGallery === 'Outro tema personalizado' ||
-    selectedThemeFromGallery === 'Tema Personalizado / Outro'
-  );
-  const [customThemeInput, setCustomThemeInput] = useState('');
   const [activeParentsCount, setActiveParentsCount] = useState<number>(17);
 
   // Subtle natural live visitor count fluctuation (between 14 and 21)
@@ -87,19 +82,10 @@ export const PreviewFormSection: React.FC<PreviewFormSectionProps> = ({
     });
   };
 
-  // Sync if selectedThemeFromGallery changes
+  // Sync if selectedThemeFromGallery changes (e.g. from gallery click)
   React.useEffect(() => {
     if (selectedThemeFromGallery) {
-      if (
-        selectedThemeFromGallery === 'Outro tema personalizado' ||
-        selectedThemeFromGallery === 'Tema Personalizado / Outro'
-      ) {
-        setIsCustomTheme(true);
-        setFormData((prev) => ({ ...prev, storyTheme: 'Tema Personalizado / Outro' }));
-      } else {
-        setIsCustomTheme(false);
-        setFormData((prev) => ({ ...prev, storyTheme: selectedThemeFromGallery }));
-      }
+      setFormData((prev) => ({ ...prev, storyTheme: selectedThemeFromGallery }));
     }
   }, [selectedThemeFromGallery]);
 
@@ -118,8 +104,8 @@ export const PreviewFormSection: React.FC<PreviewFormSectionProps> = ({
     if (!formData.childInterests.trim()) {
       newErrors.childInterests = 'Conte do que o pequeno mais gosta (ex: dinossauros, bichinhos, estrelas).';
     }
-    if (isCustomTheme && !customThemeInput.trim()) {
-      newErrors.customTheme = 'Por favor, digite o tema que você gostaria de criar.';
+    if (!formData.storyTheme.trim()) {
+      newErrors.storyTheme = 'Por favor, digite o tema desejado para a história.';
     }
     if (!formData.whatsappNumber.trim()) {
       newErrors.whatsappNumber = 'Informe seu WhatsApp com DDD.';
@@ -141,14 +127,10 @@ export const PreviewFormSection: React.FC<PreviewFormSectionProps> = ({
 
     setIsSubmitting(true);
 
-    const finalTheme = isCustomTheme && customThemeInput.trim()
-      ? `Tema Exclusivo: ${customThemeInput.trim()}`
-      : formData.storyTheme;
-
     // Sanitize and limit lengths to prevent URI overflow and script injection
     const sanitizedData: PreviewFormData = {
       ...formData,
-      storyTheme: finalTheme,
+      storyTheme: formData.storyTheme.replace(/[<>]/g, '').trim().slice(0, 100),
       parentName: formData.parentName.replace(/[<>]/g, '').trim().slice(0, 70),
       childName: formData.childName.replace(/[<>]/g, '').trim().slice(0, 50),
       childInterests: formData.childInterests.replace(/[<>]/g, '').trim().slice(0, 180),
@@ -581,7 +563,7 @@ export const PreviewFormSection: React.FC<PreviewFormSectionProps> = ({
                       className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#653B2A] hover:bg-[#F6B83F]/20 bg-[#FFF6E6] px-2.5 py-0.5 rounded-full border border-[#653B2A]/15 transition-colors cursor-pointer"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-[#F6B83F]" />
-                      <span>{activeTooltip === 'theme' ? 'Fechar dica' : '⭐ Como vira herói?'}</span>
+                      <span>{activeTooltip === 'theme' ? 'Fechar dica' : '⭐ Como funciona?'}</span>
                     </button>
                   </div>
 
@@ -591,75 +573,41 @@ export const PreviewFormSection: React.FC<PreviewFormSectionProps> = ({
                       <div className="flex items-start gap-2.5">
                         <Sparkles className="w-4 h-4 text-[#F6B83F] mt-0.5 shrink-0" />
                         <div className="space-y-1.5">
-                          <p className="font-bold text-[#653B2A]">Como seu filho(a) se torna o protagonista:</p>
+                          <p className="font-bold text-[#653B2A]">Crie em qualquer universo da imaginação:</p>
                           <p className="text-[#653B2A]/85 leading-relaxed">
-                            No livro, seu pequeno não é um coadjuvante: <strong>ele é o líder corajoso e inteligente de toda a aventura!</strong> Ele recebe um chamado mágico, encontra amigos leais, toma decisões nobres e resolve o grande enigma com sua bondade e imaginação.
-                          </p>
-                          <p className="text-[#653B2A]/75 text-[11px] leading-relaxed">
-                            💡 Escolha um tema abaixo ou selecione <em>"Quero sugerir outro tema exclusivo"</em> para inventar o universo favorito dele(a)!
+                            No livro, seu pequeno é o protagonista de toda a história! Digite o tema que ele mais ama: dinossauros, viagem espacial, futebol, fundo do mar, princesas corajosas ou qualquer aventura que você imaginar.
                           </p>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  <select
+                  <input
                     id="storyTheme"
-                    value={isCustomTheme ? 'Tema Personalizado / Outro' : formData.storyTheme}
+                    type="text"
+                    inputMode="text"
+                    maxLength={100}
+                    value={formData.storyTheme}
                     onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === 'Tema Personalizado / Outro') {
-                        setIsCustomTheme(true);
-                        setFormData((prev) => ({ ...prev, storyTheme: 'Tema Personalizado / Outro' }));
-                      } else {
-                        setIsCustomTheme(false);
-                        setFormData((prev) => ({ ...prev, storyTheme: val }));
+                      setFormData({ ...formData, storyTheme: e.target.value });
+                      if (errors.storyTheme) {
+                        setErrors((prev) => ({ ...prev, storyTheme: undefined }));
                       }
                     }}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#653B2A]/15 text-sm text-[#653B2A] bg-[#FFF6E6]/60 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#F6B83F] transition-all cursor-pointer"
-                  >
-                    <option value="Lucas no Mundo do Futebol">Lucas no Mundo do Futebol (Esportes)</option>
-                    <option value="Luna na Floresta Encantada">Luna na Floresta Encantada (Magia & Natureza)</option>
-                    <option value="Davi e os Dinossauros">Davi e os Dinossauros (Aventura Pré-Histórica)</option>
-                    <option value="Theo no Reino das Estrelas">Theo no Reino das Estrelas (Fantasia Cósmica)</option>
-                    <option value="Helena no Jardim Encantado">Helena no Jardim Encantado (Flores & Sonhos)</option>
-                    <option value="Tema Personalizado / Outro">Quero sugerir outro tema exclusivo ✨</option>
-                  </select>
-
-                  {/* Campo de digitação imediata quando tema personalizado é selecionado */}
-                  {isCustomTheme && (
-                    <div className="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-[#FFF6E6] to-white border-2 border-[#F6B83F] shadow-xs animate-in fade-in duration-200">
-                      <label htmlFor="customThemeInput" className="block text-xs font-bold text-[#653B2A] mb-1">
-                        ✨ Digite o tema exclusivo dos sonhos:
-                      </label>
-                      <input
-                        id="customThemeInput"
-                        type="text"
-                        autoFocus
-                        maxLength={120}
-                        value={customThemeInput}
-                        onChange={(e) => {
-                          setCustomThemeInput(e.target.value);
-                          if (errors.customTheme) {
-                            setErrors((prev) => ({ ...prev, customTheme: undefined }));
-                          }
-                        }}
-                        placeholder="Ex: Aventura no fundo do mar com baleias e castelos de areia..."
-                        className={`w-full px-3.5 py-2 rounded-xl border text-xs sm:text-sm text-[#653B2A] bg-white focus:outline-hidden focus:ring-2 focus:ring-[#F6B83F] transition-all ${
-                          errors.customTheme ? 'border-red-400' : 'border-[#653B2A]/20'
-                        }`}
-                      />
-                      {errors.customTheme && (
-                        <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-3.5 h-3.5" />
-                          {errors.customTheme}
-                        </p>
-                      )}
-                      <p className="text-[10px] text-[#653B2A]/70 mt-1">
-                        Nosso roteirista e artista criarão a capa e a história exatamente no universo que você pedir!
-                      </p>
-                    </div>
+                    placeholder="Digite o tema (ex: Dinossauros, Fundo do Mar, Futebol...)"
+                    className={`w-full px-4 py-3 sm:py-2.5 rounded-xl border text-base sm:text-sm text-[#653B2A] bg-[#FFF6E6]/60 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#F6B83F] transition-all ${
+                      errors.storyTheme ? 'border-red-400' : 'border-[#653B2A]/15'
+                    }`}
+                  />
+                  {errors.storyTheme && (
+                    <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      {errors.storyTheme}
+                    </p>
                   )}
+                  <p className="text-[11px] text-[#653B2A]/70 mt-1">
+                    Você pode digitar qualquer tema que desejar.
+                  </p>
                 </div>
 
                 <div>
