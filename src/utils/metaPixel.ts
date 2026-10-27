@@ -1,6 +1,6 @@
 /**
  * Meta Pixel Integration & Event Tracking Helper
- * Pixel ID: 1487236183253849
+ * Pixel ID: 1172687131943399
  */
 
 declare global {
@@ -10,7 +10,7 @@ declare global {
   }
 }
 
-export const META_PIXEL_ID = '1487236183253849';
+export const META_PIXEL_ID = '1172687131943399';
 
 /**
  * Track standard Meta Pixel event (e.g., 'PageView', 'Lead', 'Contact', 'InitiateCheckout', 'ViewContent')
