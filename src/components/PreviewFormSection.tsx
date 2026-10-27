@@ -26,6 +26,7 @@ import {
   WHATSAPP_DISPLAY_PHONE
 } from '../config/whatsapp';
 
+import { trackMetaEvent, trackMetaCustomEvent } from '../utils/metaPixel';
 import { LegalDocType } from './LegalModal';
 import { TrustBadge } from './TrustBadge';
 import { WhatsAppIcon } from './WhatsAppIcon';
@@ -162,6 +163,18 @@ export const PreviewFormSection: React.FC<PreviewFormSectionProps> = ({
     setSubmittedLink(link);
     setIsSubmitted(true);
     setIsSubmitting(false);
+
+    // Meta Pixel Conversion Event: Lead & Request
+    trackMetaEvent('Lead', {
+      content_name: sanitizedData.storyTheme,
+      content_category: 'Livro Infantil Personalizado',
+      currency: 'BRL',
+      value: 0
+    });
+    trackMetaCustomEvent('PreviewFormSubmitted', {
+      storyTheme: sanitizedData.storyTheme,
+      childAge: sanitizedData.childAge
+    });
 
     // Scroll smoothly to success state container
     setTimeout(() => {
@@ -316,6 +329,10 @@ export const PreviewFormSection: React.FC<PreviewFormSectionProps> = ({
                   href={submittedLink || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => {
+                    trackMetaEvent('Contact', { content_name: 'WhatsApp Form Success' });
+                    trackMetaCustomEvent('WhatsAppClick', { source: 'form_success' });
+                  }}
                   className="w-full inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white text-base font-extrabold shadow-lg shadow-[#25D366]/30 active:scale-[0.98] transition-all cursor-pointer"
                 >
                   <WhatsAppIcon size="md" />

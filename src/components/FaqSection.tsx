@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { FAQ_LIST, FaqCategory } from '../data/books';
 import { buildWhatsAppLink } from '../config/whatsapp';
+import { trackMetaEvent, trackMetaCustomEvent } from '../utils/metaPixel';
 
 export const FaqSection: React.FC = () => {
   const [openId, setOpenId] = useState<string | null>('faq-1');
@@ -180,6 +181,10 @@ export const FaqSection: React.FC = () => {
             href={buildWhatsAppLink('Olá! Estive no site da Conto de Ouro e gostaria de tirar uma dúvida sobre os livros.')}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => {
+              trackMetaEvent('Contact', { content_name: 'WhatsApp FAQ' });
+              trackMetaCustomEvent('WhatsAppClick', { source: 'faq' });
+            }}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#653B2A] text-[#FFF6E6] text-xs font-extrabold hover:bg-[#7d4833] active:scale-[0.98] transition-all whitespace-nowrap cursor-pointer shadow-xs border border-white/10"
           >
             <MessageCircle className="w-4 h-4 text-[#F6B83F]" />

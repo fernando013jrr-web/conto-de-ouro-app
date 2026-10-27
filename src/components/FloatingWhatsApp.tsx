@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
 import { buildWhatsAppLink } from '../config/whatsapp';
+import { trackMetaEvent, trackMetaCustomEvent } from '../utils/metaPixel';
 
 interface FloatingWhatsAppProps {
   onOpenForm: () => void;
@@ -90,6 +91,10 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({ onOpenForm }
           href={link}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => {
+            trackMetaEvent('Contact', { content_name: 'WhatsApp Floating Button' });
+            trackMetaCustomEvent('WhatsAppClick', { source: 'floating_button' });
+          }}
           aria-label="Conversar no WhatsApp da Conto de Ouro"
           className={`relative z-10 w-13 h-13 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-[#25D366] flex items-center justify-center shadow-xl active:scale-95 transition-all duration-300 border-2 border-white/90 shrink-0 ${
             isPulsing ? 'animate-soft-pulse' : 'hover:scale-105'
