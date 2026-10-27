@@ -9,4 +9,5 @@ coverage/
 -e 
 .aistudio/
 .tempmediaStorage/
+public/assets/aistudio/
 
